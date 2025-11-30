@@ -1,0 +1,22 @@
+-------------------------------------------------------------------------------
+Test set: com.unir.tests.KarateRunnerTest
+-------------------------------------------------------------------------------
+Tests run: 45, Failures: 3, Errors: 0, Skipped: 0, Time elapsed: 7.294 s <<< FAILURE! - in com.unir.tests.KarateRunnerTest
+src/test/features/calculator.[11.4:124] 11. Pruebas de raiz cuadrada exitosas y error  Time elapsed: 0.056 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+status code was: 400, expected: 200, response time in milliseconds: 7, url: http://127.0.0.1:5000/calc/sqrt/-4, response: 
+Cannot calculate the square root of a negative number
+src/test/features/calculator.feature:116
+
+src/test/features/calculator.[12.4:137] 12. Logaritmo base 10 exitoso, con cero y error.  Time elapsed: 0.022 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+status code was: 400, expected: 200, response time in milliseconds: 7, url: http://127.0.0.1:5000/calc/log10/-1, response: 
+Cannot calculate logarithm for zero or negative numbers
+src/test/features/calculator.feature:129
+
+src/test/features/calculator.[12.5:138] 12. Logaritmo base 10 exitoso, con cero y error.  Time elapsed: 2.039 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+status code was: 400, expected: 200, response time in milliseconds: 8, url: http://127.0.0.1:5000/calc/log10/0, response: 
+Cannot calculate logarithm for zero or negative numbers
+src/test/features/calculator.feature:129
+
