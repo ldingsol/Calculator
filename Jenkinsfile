@@ -1,29 +1,40 @@
 pipeline {
+    // Definimos el agente donde correrá el pipeline.
     agent {
         label 'Agente01'
     }
+    
     stages {
+        // ETAPA SIMPLIFICADA: Usamos 'checkout scm' que utiliza la configuración del Job
         stage('Source') {
             steps {
-                git 'https://github.com/ldingsol/Calculator.git'
+                // Esto asegura que se usa la configuración SCM del Job (que debe apuntar a 'main')
+                checkout scm 
             }
         }
+        
         stage('Build') {
             steps {
                 echo 'Building stage'
-                sh 'make build'
+                // Revisa si 'make build' es un comando de Windows. Si no, usa 'bat'.
+                sh 'make build' 
             }
         }
+        
         stage('Unit tests') {
             steps {
                 sh 'make test-unit'
-                archiveArtifacts artifacts: 'results/*.xml'
+                // Revisa que este patrón coincida con el paso 'junit' de abajo
+                archiveArtifacts artifacts: 'results/*_result.xml' 
             }
         }
     }
+    
     post {
         always {
-            junit 'results/*_result.xml'
+            // CORREGIDO: Usar el mismo patrón de archivo XML de pruebas.
+            junit 'results/*_result.xml' 
+            // Limpia el workspace del agente después de cada ejecución (buena práctica).
             cleanWs()
         }
     }
