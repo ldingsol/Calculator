@@ -1,40 +1,43 @@
 pipeline {
-    // Definimos el agente donde correrá el pipeline.
     agent {
         label 'Agente01'
     }
-    
     stages {
-        // ETAPA SIMPLIFICADA: Usamos 'checkout scm' que utiliza la configuración del Job
+        // La etapa Source está bien, usa el checkout implícito
         stage('Source') {
             steps {
-                // Esto asegura que se usa la configuración SCM del Job (que debe apuntar a 'main')
                 checkout scm 
             }
         }
         
         stage('Build') {
             steps {
-                echo 'Building stage'
-                // Revisa si 'make build' es un comando de Windows. Si no, usa 'bat'.
-                bat 'make build' 
+                echo 'Installing dependencies'
+                // 1. Instalar dependencias con PIP (asumiendo un requirements.txt)
+                // Usamos 'bat' porque estamos en Windows
+                bat 'pip install -r requirements.txt' 
+                
+                // Si el paso de 'Build' es solo instalar dependencias, esto es suficiente.
             }
         }
         
         stage('Unit tests') {
             steps {
-                bat 'make test-unit'
-                // Revisa que este patrón coincida con el paso 'junit' de abajo
-                archiveArtifacts artifacts: 'results/*_result.xml' 
+                echo 'Running unit tests'
+                // 2. Ejecutar pruebas (asumiendo que usas pytest y genera un XML de JUnit)
+                // Se debe usar la herramienta de pruebas específica (pytest, nose, unittest, etc.)
+                bat 'pytest --junitxml=results/test_result.xml' 
+                
+                // Archivar el artefacto de la prueba para que la sección 'post' lo use
+                archiveArtifacts artifacts: 'results/test_result.xml'
             }
         }
     }
     
     post {
         always {
-            // CORREGIDO: Usar el mismo patrón de archivo XML de pruebas.
-            junit 'results/*_result.xml' 
-            // Limpia el workspace del agente después de cada ejecución (buena práctica).
+            // 3. Publicar resultados de pruebas (patrón corregido)
+            junit 'results/test_result.xml' 
             cleanWs()
         }
     }
