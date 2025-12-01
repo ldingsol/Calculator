@@ -17,13 +17,13 @@ pipeline {
             steps {
                 echo 'Building stage'
                 // Revisa si 'make build' es un comando de Windows. Si no, usa 'bat'.
-                sh 'make build' 
+                bat 'make build' 
             }
         }
         
         stage('Unit tests') {
             steps {
-                sh 'make test-unit'
+                bat 'make test-unit'
                 // Revisa que este patrón coincida con el paso 'junit' de abajo
                 archiveArtifacts artifacts: 'results/*_result.xml' 
             }
