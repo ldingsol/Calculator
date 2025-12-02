@@ -15,7 +15,7 @@ pipeline {
                 echo 'Installing dependencies'
                 // 1. Instalar dependencias con PIP (asumiendo un requirements.txt)
                 // Usamos 'bat' porque estamos en Windows
-                bat 'pip install -r requirements.txt' 
+                bat 'pip install --upgrade -r requirements.txt' 
                 
                 // Si el paso de 'Build' es solo instalar dependencias, esto es suficiente.
             }
