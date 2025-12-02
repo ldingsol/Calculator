@@ -1,43 +1,48 @@
 pipeline {
     agent {
-        label 'Agente01'
+        // Ejecutar en el agente configurado para Python/Java/Maven
+        node { label 'Agente01' }
+    }
+    options {
+        // Permite archivar artefactos de ejecuciones fallidas (útil para reportes)
+        skipStagesAfterUnstable()
     }
     stages {
-        // La etapa Source está bien, usa el checkout implícito
-        stage('Source') {
+        stage('Declarative: Checkout SCM') {
             steps {
-                checkout scm 
+                // Clonar el repositorio
+                checkout scm
             }
         }
         
-        stage('Build') {
+        stage('Build & Install Python Dependencies') {
             steps {
-                echo 'Installing dependencies'
-                // 1. Instalar dependencias con PIP (asumiendo un requirements.txt)
-                // Usamos 'bat' porque estamos en Windows
+                echo 'Instalando y actualizando dependencias de Python (para código de aplicación)'
+                // 1. Instala/Actualiza las dependencias de Python
                 bat 'pip install --upgrade -r requirements.txt' 
-                
-                // Si el paso de 'Build' es solo instalar dependencias, esto es suficiente.
             }
         }
-        
-        stage('Unit tests') {
+               
+        stage('Run Integration Tests (Karate)') {
             steps {
-                echo 'Running unit tests'
-                // 2. Ejecutar pruebas (asumiendo que usas pytest y genera un XML de JUnit)
-                // Se debe usar la herramienta de pruebas específica (pytest, nose, unittest, etc.)
-                bat 'pytest --junitxml=results/test_result.xml' 
-                
-                // Archivar el artefacto de la prueba para que la sección 'post' lo use
-                archiveArtifacts artifacts: 'results/test_result.xml'
+                echo 'Ejecutando pruebas de Karate via Maven'
+                // 3. Ejecutar Karate DSL usando Maven. 
+                //    El comando 'clean test' asume que tu pom.xml está configurado
+                //    para ejecutar las pruebas de Karate.
+                bat 'mvn clean test'
             }
         }
     }
     
     post {
         always {
-            // 3. Publicar resultados de pruebas (patrón corregido)
-            junit 'results/test_result.xml' 
+            // 4. Archivar los resultados de los tests.
+            //    Los resultados de Karate vía Maven se guardan en el directorio 'target/surefire-reports'.
+            junit 'target/surefire-reports/*.xml' 
+            
+            // Archivar los resultados de Python (si la etapa se mantuvo)
+            junit 'results/python_test_result.xml'
+            
             cleanWs()
         }
     }
