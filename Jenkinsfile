@@ -30,14 +30,15 @@ pipeline {
                     REM 1. Inicia la aplicacion en segundo plano
                     start /b python -m app.calc
                     
-                    REM 2. Espera 5 segundos para que se enlace al puerto 5000
-                    timeout /t 5 /nobreak
+                    REM 2. Espera 5 segundos usando PING (Reemplazo de timeout)
+                    ping 127.0.0.1 -n 6 > nul
                     
                     REM --- NUEVO ENFOQUE: Captura del PID ---
+                    
                     REM 3. Captura toda la salida de netstat a un archivo temporal (netstat_output.tmp)
                     netstat -ano > netstat_output.tmp
                     
-                    REM 4. Busca el PID filtrando el archivo temporal (Más estable que la tubería)
+                    REM 4. Busca el PID filtrando el archivo temporal
                     for /f "tokens=5" %%i in ('findstr /i :5000 netstat_output.tmp') do (
                         set APP_PID=%%i
                     )
@@ -49,10 +50,9 @@ pipeline {
                 // BLOQUE CORREGIDO: El 'if' y el 'error' deben estar dentro del 'script'.
                 script {
                     try {
-                        // Leer el PID capturado del archivo temporal y asignarlo a la variable de entorno de Jenkins
                         env.APP_PID = readFile('pid.txt').trim()
                     } catch (FileNotFoundException e) {
-                        env.APP_PID = ''
+                         env.APP_PID = ''
                     }
                     
                     // Verificación de PID que debe estar en Groovy
