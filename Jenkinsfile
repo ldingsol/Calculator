@@ -78,7 +78,7 @@ post {
         
         script {
             // env.APP_PID tendrá el valor capturado (o '' si falló)
-            if (env.APP_PID != null && env.APP_PID.trim() != '') {
+                 if (env.APP_PID != null && env.APP_PID.trim() != '') {
                 echo "Deteniendo aplicación Python con PID: ${env.APP_PID}"
                 try {
                     // taskkill usa la variable de entorno de Jenkins
