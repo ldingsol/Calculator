@@ -27,7 +27,7 @@ pipeline {
                 // Usamos 'start /b' en BAT/CMD para ejecutar en background sin abrir una nueva ventana
                 // Y luego buscamos el PID del proceso en el puerto 5000 (COMANDO CRÍTICO)
                 bat '''
-                    start /b python api.py
+                    start /b python app/calc.py
                     timeout 5
                     for /f "tokens=5" %%i in ('netstat -ano ^| findstr :5000') do (
                         set APP_PID=%%i
