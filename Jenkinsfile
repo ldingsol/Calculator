@@ -76,9 +76,13 @@ post {
     always {
         // ... (Tu código de JUnit, etc.) ...
         
+post {
+    always {
+        // ... (Tu código de JUnit, etc.) ...
+        
         script {
             // env.APP_PID tendrá el valor capturado (o '' si falló)
-                 if (env.APP_PID != null && env.APP_PID.trim() != '') {
+            if (env.APP_PID != null && env.APP_PID.trim() != '') { // Sentencia 'if' limpia
                 echo "Deteniendo aplicación Python con PID: ${env.APP_PID}"
                 try {
                     // taskkill usa la variable de entorno de Jenkins
@@ -89,8 +93,8 @@ post {
             } else {
                 echo 'Advertencia: No se pudo obtener PID para Taskkill. El proceso puede seguir corriendo o ya terminó.'
             }
-        }
-        cleanWs()
-    }
-}
-}
+        } // Cierra el bloque 'script'
+        cleanWs() // 'cleanWs' es un paso de Jenkins que va directamente dentro de 'always'
+    } // Cierra el bloque 'always'
+} // Cierra el bloque 'post'
+// (Faltaría el cierre final del 'pipeline' al final del archivo)
