@@ -52,7 +52,7 @@ pipeline {
                     try {
                         env.APP_PID = readFile('pid.txt').trim()
                     } catch (FileNotFoundException e) {
-                         env.APP_PID = ''
+                        env.APP_PID = ''
                     }
                     
                     // Verificación de PID que debe estar en Groovy
@@ -73,17 +73,14 @@ pipeline {
         }
     } // Cierra el bloque 'stages'
     
-    // BLOQUE CORREGIDO: Elimina la duplicación del bloque 'post' y usa la lógica de limpieza correcta.
     post {
+        // Bloque que siempre se ejecuta para limpieza
         always {
-            // ... (Tu código de JUnit, etc.) ...
-            
+            // Lógica de Taskkill y limpieza
             script {
-                // env.APP_PID tendrá el valor capturado (o '' si falló)
                 if (env.APP_PID != null && env.APP_PID.trim() != '') {
                     echo "Deteniendo aplicación Python con PID: ${env.APP_PID}"
                     try {
-                        // taskkill usa la variable de entorno de Jenkins
                         bat "taskkill /F /PID ${env.APP_PID}"
                     } catch (e) {
                         echo "Advertencia: Falló taskkill. El proceso puede haber terminado antes. Error: ${e}"
@@ -93,6 +90,25 @@ pipeline {
                 }
             }
             cleanWs()
+        }
+
+        failure {
+            echo '🚨 Pipeline fallido. Enviando notificación por correo.'
+            mail(
+                to: 'ldingsol@gmail.com', // **¡MODIFICAR ESTA DIRECCIÓN!**
+                subject: "❌ FALLO Jenkins: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    El Pipeline ha fallado.
+                    
+                    Detalles:
+                    - Trabajo: ${env.JOB_NAME}
+                    - Número de Ejecución: ${env.BUILD_NUMBER}
+                    - Estado: FALLO
+                    - URL de la Consola: ${env.BUILD_URL}
+                    
+                    Por favor, revise el log de Jenkins en el enlace anterior.
+                """
+            )
         }
     }
 } // Cierra el bloque 'pipeline'
