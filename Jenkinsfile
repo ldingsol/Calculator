@@ -24,23 +24,30 @@ stage('Start Application') {
     steps {
         echo 'Iniciando la aplicación Python en segundo plano...'
         
+        // ¡IMPORTANTE! Mantener '%%i' para el loop y usar Delayed Expansion.
         bat '''
             SETLOCAL ENABLEDELAYEDEXPANSION
             
-            REM Inicia la aplicacion como módulo en segundo plano
+            REM Inicia la aplicacion como modulo en segundo plano
             start /b python -m app.calc
             
             REM Espera 5 segundos para que la aplicación se enlace al puerto 5000
             timeout /t 5 /nobreak
             
-            REM Captura el PID usando netstat. Usa doble %%i en Jenkins.
+            REM Captura el PID (Usar doble %% para la variable de loop en Jenkins)
             for /f "tokens=5" %%i in ('netstat -ano ^| findstr /i :5000') do (
                 set APP_PID=%%i
             )
             
-            REM Muestra el PID capturado usando !APP_PID! (Delayed Expansion)
-            echo Application started with PID: !APP_PID!
+            REM El PID se asigna a la variable de Jenkins
+            echo Setting Jenkins ENV variable APP_PID to: !APP_PID!
+            echo !APP_PID! > pid.txt
         '''
+        // Leer el PID capturado del archivo temporal y asignarlo a la variable de entorno de Jenkins
+        script {
+            env.APP_PID = readFile('pid.txt').trim()
+        }
+        echo "Application started with Jenkins ENV PID: ${env.APP_PID}"
     }
 }
         
