@@ -47,7 +47,6 @@ pipeline {
                     echo !APP_PID! > pid.txt
                 '''
                 
-                // BLOQUE CORREGIDO: El 'if' y el 'error' deben estar dentro del 'script'.
                 script {
                     try {
                         env.APP_PID = readFile('pid.txt').trim()
@@ -55,7 +54,6 @@ pipeline {
                         env.APP_PID = ''
                     }
                     
-                    // Verificación de PID que debe estar en Groovy
                     if (env.APP_PID == '') {
                         error('Fallo crítico: No se capturó el PID. Verifique si la aplicación inició o si el Agente01 tiene permisos para Netstat/Findstr.')
                     }
@@ -91,9 +89,27 @@ pipeline {
             }
             cleanWs()
         }
-
+        
         failure {
             echo '🚨 Pipeline fallido. Enviando notificación por correo.'
+            
+            // =========================================================
+            // 🆕 NUEVO ECHO PARA DEPURACIÓN DEL CORREO
+            // =========================================================
+            echo "Destinatario: ldingsol@gmail.com"
+            echo "Asunto: ❌ FALLO Jenkins: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+            echo """
+                Cuerpo del correo a enviar:
+                El Pipeline ha fallado.
+                
+                Detalles:
+                - Trabajo: ${env.JOB_NAME}
+                - Número de Ejecución: ${env.BUILD_NUMBER}
+                - Estado: FALLO
+                - URL de la Consola: ${env.BUILD_URL}
+            """
+            // =========================================================
+            
             mail(
                 to: 'ldingsol@gmail.com', // **¡MODIFICAR ESTA DIRECCIÓN!**
                 subject: "❌ FALLO Jenkins: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
